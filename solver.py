@@ -1,13 +1,13 @@
 example_board = [
-    0, 5, 1, 3, 9, 2, 0, 0, 0,
-    9, 2, 3, 0, 0, 7, 0, 4, 5,
-    8, 6, 7, 0, 0, 0, 0, 0, 9,
-    0, 0, 6, 5, 0, 0, 0, 7, 0,
-    2, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 9, 0, 0, 0, 1, 4, 0, 0,
-    5, 0, 0, 0, 0, 0, 9, 0, 0,
-    6, 1, 0, 2, 0, 0, 8, 0, 0,
-    0, 0, 0, 9, 0, 8, 5, 0, 0,
+    7, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 6, 0, 1, 0, 0, 0, 4,
+    8, 0, 0, 0, 0, 5, 0, 0, 0,
+    0, 0, 0, 7, 0, 9, 2, 0, 1,
+    0, 3, 0, 0, 5, 0, 0, 7, 0,
+    0, 8, 0, 1, 0, 0, 0, 5, 0,
+    0, 4, 0, 6, 8, 0, 0, 0, 0,
+    0, 0, 0, 0, 9, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 7, 3, 2, 0,
 ]
 
 def get_subsquares(board):
@@ -50,10 +50,26 @@ def subsquares_prune(board): #Remove solved numbers from possibilities in each 3
     subsquares = get_subsquares(board)
     for square in range(9):
         nums = [x for x in subsquares[square] if isinstance(x, int)] #Get all solved numbers in subsquare
+        tiles = []
         for tile in range(9):
             curr_tile = ((square % 3) * 3) + (27 * (square // 3)) + ((tile % 3)) + (9 * (tile // 3)) #Match subsquare tile to normal board tile
             if not isinstance(board[curr_tile], int):
+                tiles.append(curr_tile)
                 board[curr_tile] = [num for num in board[curr_tile] if num not in nums] #Remove all other numbers in subsquare from possibilities
+        board = sole_position(tiles, board)
+    return board
+
+def sole_position(tiles, board): #Find where only 1 possibility list in a 3x3 square contains a number
+    counts = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for tile in tiles:
+        for num in board[tile]:
+            counts[num - 1] += 1
+    for count in range(len(counts)):
+        if counts[count] == 1:
+            for tile in tiles:
+                if board[tile] != 1:
+                    if (count + 1) in board[tile]:
+                        board[tile] = (count + 1)
     return board
 
 def format_board(board): #Convert 1-long tile possibilities to solved numbers
